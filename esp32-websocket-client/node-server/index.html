@@ -1,0 +1,32 @@
+<html>
+  <head> </head>
+  <body>
+    <button id="toggle">toggle</button>
+    <div id="messages"></div>
+    <script>
+      let serverState = { isOn: false };
+      const webSocket = new WebSocket("ws://192.168.68.100:443/message_path");
+
+      function appendMessage(message) {
+        document.getElementById("messages").innerHTML += message + "<br>";
+      }
+
+      webSocket.addEventListener("open", () => {
+        appendMessage("Connected to Server!");
+      });
+
+      webSocket.onmessage = (event) => {
+        console.log(event);
+        serverState = JSON.parse(event.data);
+        appendMessage("serverState: " + event.data);
+      };
+
+      function toggleState() {
+        serverState.isOn = !serverState.isOn;
+        webSocket.send(JSON.stringify(serverState));
+      }
+
+      document.getElementById("toggle").addEventListener("click", toggleState);
+    </script>
+  </body>
+</html>
